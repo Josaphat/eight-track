@@ -15,7 +15,7 @@
                 return INTEGER;
             }
 
-[+-]        {
+[()+-]      {
                 return *yytext;
             }
 

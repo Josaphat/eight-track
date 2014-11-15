@@ -1,5 +1,6 @@
 %{
     #include "y.tab.h"
+    void yyerror(char *);
 %}
 
 INTEGER 0|[1-9][0-9]*
@@ -12,5 +13,11 @@ INTEGER     {
             }
 
 [+-]        {
-                return *yyxtext;
+                return *yytext;
             }
+
+%%
+
+int yywrap(void) {
+    return 1;
+}

@@ -1,5 +1,6 @@
 %{
     #include <stdio.h>
+    void yyerror(char *s);
 %}
 
 %union {
@@ -32,6 +33,10 @@ expr:
     ;
 
 %%
+
+void yyerror(char *s) {
+    fprintf(stderr, "ERROR: %s\n", s);
+}
 
 int main(void)
 {

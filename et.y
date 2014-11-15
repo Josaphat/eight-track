@@ -22,7 +22,7 @@ input:
 
 line:
     '\n'
-    | expr '\n' { printf ("\t%.10g\n", $1); }
+    | expr '\n' { printf ("\t%d\n", $1); }
     ;
 
 expr:

@@ -3,11 +3,14 @@
     void yyerror(char *);
 %}
 
-INTEGER 0|[1-9][0-9]*
-
 %%
 
-INTEGER     {
+0           {
+                yylval.iValue = atoi(yytext);
+                return INTEGER;
+            }
+
+[1-9][0-9]* {
                 yylval.iValue = atoi(yytext);
                 return INTEGER;
             }
@@ -15,6 +18,12 @@ INTEGER     {
 [+-]        {
                 return *yytext;
             }
+
+[\n]        {
+                return *yytext;
+            }
+
+.           yyerror("Unrecognized symbol.");
 
 %%
 

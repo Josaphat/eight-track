@@ -2,7 +2,13 @@
     #include <stdio.h>
 %}
 
-%token INTEGER
+%union {
+    int iValue;
+};
+
+%token <iValue> INTEGER
+
+%type <iValue> expr
 
 %left '+' '-'
 
@@ -16,6 +22,7 @@ input:
 line:
     '\n'
     | expr '\n' { printf ("\t%.10g\n", $1); }
+    ;
 
 expr:
     INTEGER         { $$ = $1; }

@@ -115,7 +115,15 @@ bool symbol_give_me_my_stuff(size_t num_symbols, const char **out_registers, sym
         symbols[idx] = va_arg(list, symbol_table_index_t);
     }
     va_end(list);
-    return symbol_request_reg(num_symbols, symbols);
+
+    if(!symbol_request_reg(num_symbols, symbols)) {
+        return false;
+    }
+    for(unsigned idx = 0; idx < num_symbols; ++idx) {
+        assert(symbol_table[symbols[idx]].type == SYMB_REGI);
+        out_registers[idx] = register_table[symbol_table[symbols[idx]].loc.regis].repr;
+    }
+    return true;
 }
 
 static symbol_table_index_t next_avail_symb_tab_entry(void) {

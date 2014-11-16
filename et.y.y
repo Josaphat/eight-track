@@ -20,6 +20,7 @@
 
 %token <iValue> INTEGER
 %token EQUAL NEQUAL
+%token STARTIF ENDIF
 %token BADLEX
 
 %type <oValue> expr logic

@@ -16,7 +16,16 @@
                 return INTEGER;
             }
 
-[+\-()]     {
+"int"       {
+                return *yytext;
+            }
+
+[:alpha:][:alnum:]* {
+                yylval.sValue = yytext;
+                return VARIABLE;
+                    }
+
+[+\-()=]     {
                 return *yytext;
             }
 

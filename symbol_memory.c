@@ -105,9 +105,15 @@ void symbol_del(symbol_table_index_t index) {
 }
 
 bool symbol_give_me_my_stuff(size_t num_symbols, const char **out_registers, symbol_table_index_t symbol0, ...) {
-    // XXX: Implement this, using symbol_request_reg()
-    assert(false);
-    return false;
+    symbol_table_index_t symbols[num_symbols];
+    va_list list;
+    va_start(list, symbol0);
+    symbols[0] = symbol0;
+    for(unsigned idx = 1; idx < num_symbols; ++idx) {
+        symbols[idx] = va_arg(list, symbol_table_index_t);
+    }
+    va_end(list);
+    return symbol_request_reg(num_symbols, symbols);
 }
 
 static symbol_table_index_t next_avail_symb_tab_entry(void) {

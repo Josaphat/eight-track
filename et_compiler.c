@@ -132,8 +132,8 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
         case OP_ADD2:
         case OP_SUB2:
             assert(operation->num_ops == 2);
-            if (questionable_return_props(operation->ops[0]->type).indirect &&
-                questionable_return_props(operation->ops[1]->type).indirect) {
+            if (!questionable_return_props(operation->ops[0]->type).indirect &&
+                !questionable_return_props(operation->ops[1]->type).indirect) {
                 symbol_table_index_t sindex = symbol_add();
                 const char * symbol_text[1];
                 if( ! symbol_give_me_my_stuff(1, symbol_text, sindex) ) {
@@ -145,7 +145,7 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
 
                 return sindex;
             }
-            else if (questionable_return_props(operation->ops[0]->type).indirect) {
+            else if (!questionable_return_props(operation->ops[0]->type).indirect) {
                 symbol_table_index_t dindex = code_gen_rec(operation->ops[1]).indirect;
                 symbol_table_index_t sindex = symbol_add();
                 const char * symbol_text[2];
@@ -161,7 +161,7 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
 
                 return sindex;
             }
-            else if (questionable_return_props(operation->ops[1]->type).indirect) {
+            else if (!questionable_return_props(operation->ops[1]->type).indirect) {
                 symbol_table_index_t dindex = code_gen_rec(operation->ops[0]).indirect;
                 const char * symbol_text[1];
                 if( ! symbol_give_me_my_stuff(1, symbol_text, dindex) ) {

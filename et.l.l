@@ -18,10 +18,12 @@
 
 int       {
                 return INTKEYWORD;
-            }
+          }
 
-[[:alpha:]][[:alnum:]]* {
-                yylval.sValue = yytext;
+[a-zA-Z][a-zA-Z0-9]* {
+                char *newbuf = malloc(yyleng + 1);
+                strcpy(newbuf, yytext);
+                yylval.sValue = newbuf;
                 return VARIABLE;
                     }
 

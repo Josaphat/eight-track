@@ -111,14 +111,14 @@ static symbol_table_index_t code_variable(const parse_node_var_t *variable) {
             const char *myregs[2];
             symbol_table_index_t sub_idx = code_gen_rec(variable->subexpr).indirect;
             symbol_give_me_my_stuff(2, myregs, st_idx, sub_idx);
-            printf("\tmovl %s, %s\n", myregs[0], myregs[1]);
+            printf("\tmovl %s, %s\n", myregs[1], myregs[0]);
             if(subprops.cleanup) {
                 symbol_del(sub_idx);
             }
         } else { // direct
             const char *myreg[1];
             symbol_give_me_my_stuff(1, myreg, st_idx);
-            printf("\tmovl %s, $%d\n", myreg[0], code_gen_rec(variable->subexpr).direct);
+            printf("\tmovl $%d, %s\n", code_gen_rec(variable->subexpr).direct, myreg[0]);
         }
     }
 

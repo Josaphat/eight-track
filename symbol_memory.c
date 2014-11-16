@@ -58,6 +58,7 @@ static symbol_table_index_t next_avail_symb_tab_entry(void);
 static register_table_index_t next_avail_reg_tab_entry(void);
 static bool symbol_request_reg(size_t, const symbol_table_index_t *);
 static bool symbol_demote_to_mem(symbol_table_index_t);
+static bool symbol_promote_to_reg(register_table_index_t, symbol_table_index_t);
 
 symbol_table_index_t symbol_add(void) {
     if(symbol_table == NULL) {
@@ -139,25 +140,77 @@ static register_table_index_t next_avail_reg_tab_entry(void) {
 }
 
 static bool symbol_request_reg(size_t num_requested, const symbol_table_index_t *symbols) {
-    // XXX: Implement this function!
-    assert(false);
-    return false;
+    // For each of the requested symbols
+    for(unsigned index = 0; index < num_requested; ++index) {
+        // If not already stored in a register
+        if(symbol_table[symbols[index]].type != SYMB_REGI) {
+            bool successfully_promoted = false;
 
-    // For each one of the symbols:
-        // Check whether it's already stored in a register
-            // If not:
-                // Call next_avail_reg_tab_entry()
-                    // If true, use that location
-                    // If false:
-                        // For each used register table location
-                            // If not pointing to another requested symbol index:
-                                // Call symbol_demote_to_mem() on it
-                                    // On failure, the world is over
-                                // Use this newly-freed location
-                    // Setup the location and return it
+            // Call next_avail_reg_tab_entry()
+            register_table_index_t r_idx = next_avail_reg_tab_entry();
+            if(r_idx == REG_TAB_FULL) {
+                // For each used register table location (i.e. all of them)
+                for(unsigned other_r_idx = 0; other_r_idx < REGISTER_TABLE_LEN; ++other_r_idx) {
+                    unsigned potentially_conflicting;
+                    for(potentially_conflicting = 0; potentially_conflicting < num_requested; ++potentially_conflicting) {
+                        if(register_table[other_r_idx].symb == symbols[potentially_conflicting]) {
+                            // The client also requested the symbol stored in this register. Skip further checks and try a different (destination) register.
+                            break;
+                        }
+                    }
+                    // We made it all the way through, so this one is safe to swap out!
+                    if(potentially_conflicting == num_requested) {
+                        bool safe_and_sound = symbol_demote_to_mem(register_table[other_r_idx].symb);
+                        // TODO: More graceful user-facing error here
+                        assert(safe_and_sound);
+
+                        // Use this newly-freed location
+                        safe_and_sound = symbol_promote_to_reg(other_r_idx, symbols[index]);
+                        // TODO: More graceful user-facing error here
+                        assert(safe_and_sound);
+                        successfully_promoted = true;
+                        break;
+                    }
+                }
+            }
+            else { // register_table is not full: place in empty space
+                bool safe_and_sound = symbol_promote_to_reg(r_idx, symbols[index]);
+                // TODO: More graceful user-facing error here
+                assert(safe_and_sound);
+                successfully_promoted = true;
+            }
+
+            if(!successfully_promoted) {
+                // We were unable to promote one of the missing values!
+                return false;
+            }
+        }
+    }
+
+    // Sanity-check!
+#ifndef NDEBUG
+    for(unsigned index = 0; index < num_requested; ++index) {
+        // If not already stored in a register
+        if(symbol_table[symbols[index]].type != SYMB_REGI) {
+            // We should have fixed this already!
+            assert(false);
+        }
+    }
+#endif
+
+    // All requested values were either already in registers or promoted successfully.
+    return true;
 }
 
 static bool symbol_demote_to_mem(symbol_table_index_t index) {
+    // XXX: Actually do memory stuff!
+    return false;
+}
+
+// N.B. It is an error to promote into a nonfree register ("...not to mention immoral" -- RMS)
+static bool symbol_promote_to_reg(register_table_index_t dest, symbol_table_index_t benefactor) {
+    assert(!register_table[dest].in_use);
+
     // XXX: Actually do memory stuff!
     return false;
 }

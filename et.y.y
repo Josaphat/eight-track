@@ -42,10 +42,10 @@ line:
 
 logic:
     expr EQUAL expr     {
-                      $$ = parse_node_operation(OP_EQ,  2, $1, $3);
+                      $$ = parse_node_operation(OP_EQUL,  2, $1, $3);
                         }
     | expr NEQUAL expr  {
-                      $$ = parse_node_operation(OP_NEQ, 2, $1, $3);
+                      $$ = parse_node_operation(OP_NEQL, 2, $1, $3);
                         }
     | expr '<' expr  { $$ = parse_node_operation(OP_LESS, 2, $1, $3); }
     | expr '>' expr  { $$ = parse_node_operation(OP_GREA, 2, $1, $3); }
@@ -54,6 +54,8 @@ logic:
 
 expr:
     INTEGER         { $$ = parse_node_int($1); }
+    /* The following may be stupid, lint could just happen automatically.
+       It's essentially forcing you to cast a logic to an expression. */
     | LINT_START logic LINT_END {
                                     $$ = parse_node_operation(OP_LINT, 1, $2);
                                 }

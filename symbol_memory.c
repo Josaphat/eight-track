@@ -69,6 +69,8 @@ symbol_table_index_t symbol_add(void) {
     symbol_table_index_t symb_spot = next_avail_symb_tab_entry();
     register_table_index_t reg_spot = next_avail_reg_tab_entry();
     if(reg_spot != REG_TAB_FULL) { // Going into register
+        symbol_table[symb_spot].type = SYMB_REGI;
+        symbol_table[symb_spot].loc.regis = reg_spot;
         register_table[reg_spot].in_use = true;
         register_table[reg_spot].symb = symb_spot;
     }

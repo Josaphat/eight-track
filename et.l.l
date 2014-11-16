@@ -1,5 +1,6 @@
 %{
     #include "et.y.h"
+
     void yyerror(char *);
 %}
 
@@ -15,7 +16,7 @@
                 return INTEGER;
             }
 
-[()+-]      {
+[+]      {
                 return *yytext;
             }
 

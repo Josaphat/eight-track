@@ -19,6 +19,7 @@
 }
 
 %token <iValue> INTEGER
+%token BADLEX
 
 %type <oValue> expr
 
@@ -33,6 +34,7 @@ input:
 
 line:
     '\n'
+    | BADLEX '\n'   { YYABORT; }
     | expr '\n'     { code_gen($1); }
     ;
 
@@ -83,6 +85,5 @@ void yyerror(char *s) {
 
 int main(void)
 {
-    yyparse();
-    return 0;
+    return yyparse();
 }

@@ -42,6 +42,7 @@ static size_t code_operate(const parse_node_operation_t *operation) {
             return -1;
         case OP_ADD2:
             assert(operation->num_ops == 2);
+            // TODO: When watermarks are different, we can allocate a register after sub-operations are complete
             assert(regs_used < SCRATCH_REGS_LEN);
             size_t return_reg = regs_used++; 
             size_t node0_reg = code_gen_rec(operation->ops[0]);

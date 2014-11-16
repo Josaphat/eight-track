@@ -24,7 +24,10 @@
                 return *yytext;
             }
 
-.           yyerror("Unrecognized symbol.");
+.           {
+                yyerror("Unrecognized symbol");
+                return BADLEX;
+            }
 
 %%
 

@@ -8,6 +8,11 @@ typedef enum {
     NODE_TYPE_OPERATION,
 } parse_node_tag_t;
 
+typedef enum {
+    OP_NOOP = 0,
+    OP_ADD2,
+} parse_node_operator_t;
+
 typedef struct parse_node parse_node_t;
 
 typedef struct {
@@ -15,6 +20,7 @@ typedef struct {
 } parse_node_int_t;
 
 typedef struct {
+    parse_node_operator_t operr;
     size_t num_ops;
     const parse_node_t **ops;
 } parse_node_operation_t;
@@ -30,6 +36,6 @@ struct parse_node {
 };
 
 const parse_node_t *parse_node_int(int value);
-const parse_node_t *parse_node_operation(size_t num_ops, const parse_node_t *node0, ...);
+const parse_node_t *parse_node_operation(parse_node_operator_t operr, size_t num_ops, const parse_node_t *node0, ...);
 
 #endif

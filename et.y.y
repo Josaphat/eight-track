@@ -3,6 +3,8 @@
 }
 
 %{
+    #include "et_compiler.h"
+
     #include <stdarg.h>
     #include <stdio.h>
     #include <stdlib.h>
@@ -31,12 +33,12 @@ input:
 
 line:
     '\n'
-    | expr '\n'
+    | expr '\n'     { code_gen($1); }
     ;
 
 expr:
     INTEGER         { $$ = parse_node_int($1); }
-    | expr '+' expr { $$ = parse_node_operation(2, $1, $3); }
+    | expr '+' expr { $$ = parse_node_operation(OP_ADD2, 2, $1, $3); }
     ;
 
 %%
@@ -51,12 +53,13 @@ const parse_node_t *parse_node_int(int value) {
     return node;
 }
 
-const parse_node_t *parse_node_operation(size_t num_ops, const parse_node_t *node0, ...) {
+const parse_node_t *parse_node_operation(parse_node_operator_t operr, size_t num_ops, const parse_node_t *node0, ...) {
     parse_node_t *node = malloc(sizeof(parse_node_t));
     if(node == NULL) {
         yyerror("Out of memory");
     }
     node->type = NODE_TYPE_OPERATION;
+    node->contents.operation.operr = operr;
     node->contents.operation.num_ops = num_ops;
     node->contents.operation.ops = malloc(num_ops * sizeof(const parse_node_t *));
     if(node->contents.operation.ops == NULL) {

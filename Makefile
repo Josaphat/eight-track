@@ -1,7 +1,7 @@
 BIN  := et
 OBJS := et.o et.l.o et.y.o et_compiler.o symbol_memory.o
 
-CPPFLAGS := -D_POSIX_SOURCE
+CPPFLAGS := -D_POSIX_SOURCE -D_GNU_SOURCE
 CFLAGS   := -std=c99 -Og -g3 -Wall -Wextra -Wpedantic -Wno-unused-function -Wno-unused-parameter
 YFLAGS    = --yacc --defines="$(@:.c=.h)"
 

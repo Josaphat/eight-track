@@ -16,6 +16,17 @@
                 return INTEGER;
             }
 
+int       {
+                return INTKEYWORD;
+          }
+
+[a-zA-Z][a-zA-Z0-9]* {
+                char *newbuf = malloc(yyleng + 1);
+                strcpy(newbuf, yytext);
+                yylval.sValue = newbuf;
+                return VARIABLE;
+                    }
+
 "[]"        {
                 return EQUAL;
             }
@@ -24,7 +35,7 @@
                 return NEQUAL;
             }
 
-[+\-()<>]   {
+[+\-()<>=]   {
                 return *yytext;
             }
 

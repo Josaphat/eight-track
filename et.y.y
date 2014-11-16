@@ -16,9 +16,12 @@
 %union {
     int iValue;
     const parse_node_t *oValue;
+    const char *sValue;
 }
 
 %token <iValue> INTEGER
+%token <sValue> VARIABLE
+%token INTKEYWORD
 %token EQUAL NEQUAL
 %token BADLEX
 
@@ -53,6 +56,9 @@ logic:
 
 expr:
     INTEGER         { $$ = parse_node_int($1); }
+    | INTKEYWORD VARIABLE '=' expr { $$ = parse_node_var(true, true, $2, $4); }
+    | VARIABLE '=' expr { $$ = parse_node_var(false, true, $1, $3); }
+    | VARIABLE      { $$ = parse_node_var(false, false, $1, NULL); }
     | logic         { $$ = $1; }
     | expr '+' expr { $$ = parse_node_operation(OP_ADD2, 2, $1, $3); }
     | expr '-' expr { $$ = parse_node_operation(OP_SUB2, 2, $1, $3); }
@@ -68,6 +74,19 @@ const parse_node_t *parse_node_int(int value) {
     }
     node->type = NODE_TYPE_INT;
     node->contents.integer.value = value;
+    return node;
+}
+
+const parse_node_t *parse_node_var(bool declaration, bool assignment, const char *id, const parse_node_t *subexpr) {
+    parse_node_t *node = malloc(sizeof(parse_node_t));
+    if(node == NULL) {
+        yyerror("Out of memory");
+    }
+    node->type = NODE_TYPE_VAR;
+    node->contents.variable.identifier = id;
+    node->contents.variable.declaration = declaration;
+    node->contents.variable.assignment = assignment;
+    node->contents.variable.subexpr = subexpr;
     return node;
 }
 

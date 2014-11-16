@@ -47,7 +47,7 @@ static questionable_properties_t questionable_return_props(parse_node_tag_t node
             return (questionable_properties_t) { .indirect = false, .cleanup = false };
         }
         case NODE_TYPE_VAR: {
-            return (questionable_properties_t) { .indirect = true, .cleanup = false };
+            return (questionable_properties_t) { .indirect = true, .cleanup = true };
         }
         case NODE_TYPE_OPERATION: {
             return (questionable_properties_t) { .indirect = true, .cleanup = true };
@@ -122,7 +122,13 @@ static symbol_table_index_t code_variable(const parse_node_var_t *variable) {
         }
     }
 
-    return st_idx;
+    // Make a copy so that we don't clobber the variable's value during calculations.
+    symbol_table_index_t tmp_idx = symbol_add();
+    const char *myregs[2];
+    symbol_give_me_my_stuff(2, myregs, st_idx, tmp_idx);
+    printf("\tmovl %s, %s\n", myregs[0], myregs[1]);
+
+    return tmp_idx;
 }
 
 static symbol_table_index_t code_operate(const parse_node_operation_t *operation) {

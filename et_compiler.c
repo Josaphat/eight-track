@@ -106,16 +106,36 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
         case OP_LESS:
         case OP_GREA:
             assert(operation->num_ops == 2);
-            symbol_table_index_t lindex = code_gen_rec(operation->ops[0]).indirect;
-            symbol_table_index_t rindex = code_gen_rec(operation->ops[1]).indirect;
-            const char * symbol_text[2];
-            if( ! symbol_give_me_my_stuff(2, symbol_text, lindex, rindex) ) {
-                // TODO: Die if you must
+            if(operation->ops[0]->type == NODE_TYPE_INT && operation->ops[1]->type == NODE_TYPE_INT) { // both direct
+                symbol_table_index_t dindex = symbol_add();
+                const char * ret_symbol_text[1];
+                if( ! symbol_give_me_my_stuff(1, ret_symbol_text, dindex) ) {
+                    // TODO: Die die die
+                    assert(false);
+                }
+                if(code_gen_rec(operation->ops[0]).direct == code_gen_rec(operation->ops[1]).direct) {
+                    printf("\tmovl $1, %s\n", ret_symbol_text[0]);
+                }
+                else {
+                    printf("\tmovl $0, %s\n", ret_symbol_text[0]);
+                }
+                return dindex;
+            }
+            else if(operation->ops[0]->type != NODE_TYPE_INT && operation->ops[1]->type != NODE_TYPE_INT) { // both indirect
+                symbol_table_index_t lindex = code_gen_rec(operation->ops[0]).indirect;
+                symbol_table_index_t rindex = code_gen_rec(operation->ops[1]).indirect;
+                const char * symbol_text[2];
+                if( ! symbol_give_me_my_stuff(2, symbol_text, lindex, rindex) ) {
+                    // TODO: Die if you must
+                    assert(false);
+                }
+                printf("\tcmpl %s, %s\n", symbol_text[0], symbol_text[1]);
+                symbol_del(rindex);
+                symbol_del(lindex);
+            }
+            else { // one direct one indirect
                 assert(false);
             }
-            printf("\tcmpl %s, %s\n", symbol_text[0], symbol_text[1]);
-            symbol_del(rindex);
-            symbol_del(lindex);
             // Get here because it's in a second instruction
             symbol_table_index_t dindex = symbol_add();
             const char * ret_symbol_text[1];

@@ -19,8 +19,8 @@
 }
 
 %token <iValue> INTEGER
-%token EQUAL
-%token NEQUAL
+%token EQUAL NEQUAL
+%token LINT_START LINT_END
 %token BADLEX
 
 %type <oValue> expr logic
@@ -54,7 +54,9 @@ logic:
 
 expr:
     INTEGER         { $$ = parse_node_int($1); }
-    | logic         { $$ = $1; }
+    | LINT_START logic LINT_END {
+                                    $$ = parse_node_operation(OP_LINT, 1, $2);
+                                }
     | expr '+' expr { $$ = parse_node_operation(OP_ADD2, 2, $1, $3); }
     | expr '-' expr { $$ = parse_node_operation(OP_SUB2, 2, $1, $3); }
     | '(' expr ')'  { $$ = $2; }

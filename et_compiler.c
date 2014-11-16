@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+// FIXME: Must be removed as we transition to symbol_memory module!
 static const char *const SCRATCH_REGS[] = {"%eax", "%ecx", "%edx", "%esi", "%edi"};
 static const size_t SCRATCH_REGS_LEN = sizeof SCRATCH_REGS / sizeof(*SCRATCH_REGS);
 

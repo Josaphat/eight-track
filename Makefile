@@ -1,8 +1,8 @@
 BIN  := et
-OBJS := et.o et.l.o et.y.o et_compiler.o
+OBJS := et.o et.l.o et.y.o et_compiler.o symbol_memory.o
 
 CPPFLAGS := -D_POSIX_SOURCE
-CFLAGS   := -std=c99 -Wall -Wextra -Wpedantic -Wno-unused-function
+CFLAGS   := -std=c99 -Wall -Wextra -Wpedantic -Wno-unused-function -Wno-unused-parameter
 YFLAGS    = --yacc --defines="$(@:.c=.h)"
 
 $(BIN): $(OBJS)

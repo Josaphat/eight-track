@@ -11,6 +11,7 @@ typedef enum {
 typedef enum {
     OP_NOOP = 0,
     OP_ADD2,
+    OP_SUB2,
 } parse_node_operator_t;
 
 typedef struct parse_node parse_node_t;

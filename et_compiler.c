@@ -1,58 +1,86 @@
 #include "et_compiler.h"
 #include "parse_tree.h"
+#include "symbol_memory.h"
 
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-// FIXME: Must be removed as we transition to symbol_memory module!
-static const char *const SCRATCH_REGS[] = {"%eax", "%ecx", "%edx", "%esi", "%edi"};
-static const size_t SCRATCH_REGS_LEN = sizeof SCRATCH_REGS / sizeof(*SCRATCH_REGS);
+// N.B. Associated functions return indices that are either symbol_table_index_t s or literal integers,
+// depending on whether the child node is a constant or not, respectively.
+typedef union {
+    symbol_table_index_t indirect;
+    int direct;
+} questionable_return_t;
 
-static size_t regs_used = 0;
-
-// Funky
-static size_t code_gen_rec(const parse_node_t *expression);
-static size_t code_operate(const parse_node_operation_t *operation);
+static questionable_return_t code_gen_rec(const parse_node_t *expression);
+static symbol_table_index_t code_operate(const parse_node_operation_t *operation);
+static const char * code_gen_op_to_mnem(parse_node_operator_t operr);
 
 void code_gen(const parse_node_t *expression) {
     code_gen_rec(expression);
-    regs_used = 0; // TODO: When we add variables, this caused the problem
 }
 
-static size_t code_gen_rec(const parse_node_t *expression) {
+static questionable_return_t code_gen_rec(const parse_node_t *expression) {
     assert(expression);
 
     switch(expression->type) {
         case NODE_TYPE_INT:
-            assert(regs_used < SCRATCH_REGS_LEN);
-            size_t return_reg = regs_used++;
-            printf("\tmovl $%d, %s\n", expression->contents.integer.value, SCRATCH_REGS[return_reg]);
-            return return_reg;
+            return (questionable_return_t){ .direct = expression->contents.integer.value };
         case NODE_TYPE_OPERATION:
-            return code_operate(&(expression->contents.operation));
+            return (questionable_return_t) { .direct = code_operate(&(expression->contents.operation)) };
+        default:
+            assert(false);
+            return (questionable_return_t) { .direct = -1};
+    }
+}
+
+static symbol_table_index_t code_operate(const parse_node_operation_t *operation) {
+    switch(operation->operr) {
+        case OP_NOOP:
+            return -1;
+        case OP_ADD2:
+        case OP_SUB2:
+            assert(operation->num_ops == 2);
+            if (operation->ops[0]->type == NODE_TYPE_INT &&
+                operation->ops[1]->type == NODE_TYPE_INT) {
+                symbol_table_index_t sindex = symbol_add();
+                const char * symbol_text[1];
+                if( ! symbol_give_me_my_stuff(1, symbol_text, sindex) ) {
+                    // TODO: Don't die.
+                    assert(false);
+                }
+                printf("\tmovl $%d, %s\n", code_gen_rec(operation->ops[0]).direct, symbol_text[0]);
+                printf("\t%s $%d, %s\n", code_gen_op_to_mnem(operation->operr), code_gen_rec(operation->ops[1]).direct, symbol_text[0]);
+
+                return sindex;
+            }
+            else if (operation->ops[0]->type == NODE_TYPE_INT) {
+                // TODO: ME
+            }
+            else if (operation->ops[1]->type == NODE_TYPE_INT) {
+                // TODO: ME
+            }
+            else {
+                // TODO: ME. Or else.
+            }
+
+            // TODO: remove after cases above are complete (they should all return).
+            return -1;
         default:
             assert(false);
             return -1;
     }
 }
 
-static size_t code_operate(const parse_node_operation_t *operation) {
-    switch(operation->operr) {
-        case OP_NOOP:
-            return -1;
+static const char * code_gen_op_to_mnem(parse_node_operator_t operr) {
+    switch(operr) {
         case OP_ADD2:
-            assert(operation->num_ops == 2);
-            // TODO: When watermarks are different, we can allocate a register after sub-operations are complete
-            assert(regs_used < SCRATCH_REGS_LEN);
-            size_t return_reg = regs_used++; 
-            size_t node0_reg = code_gen_rec(operation->ops[0]);
-            size_t node1_reg = code_gen_rec(operation->ops[1]);
-            printf("\tleal (%s, %s), %s\n", SCRATCH_REGS[node0_reg], SCRATCH_REGS[node1_reg], SCRATCH_REGS[return_reg]);
-            regs_used -= 2;
-            return return_reg;
+            return "addl";
+        case OP_SUB2:
+            return "subl";
         default:
             assert(false);
-            return -1;
+            return "faill";
     }
 }

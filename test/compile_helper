@@ -18,6 +18,7 @@ EOHEADER
 cat "$srcfile" >>"$tmpfile"
 
 cat >>"$tmpfile" <<EOFOOTER
+	movl %eax, %edi
 	call putint
 	ret
 EOFOOTER

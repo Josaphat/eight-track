@@ -18,7 +18,10 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
 static const char * code_gen_op_to_mnem(parse_node_operator_t operr);
 
 void code_gen(const parse_node_t *expression) {
-    code_gen_rec(expression);
+    questionable_return_t ex_ret = code_gen_rec(expression);
+    if(expression->type != NODE_TYPE_INT) { // Must be indirect, got to clean up
+        symbol_del(ex_ret.indirect);
+    }
 }
 
 static questionable_return_t code_gen_rec(const parse_node_t *expression) {

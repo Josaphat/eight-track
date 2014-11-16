@@ -113,13 +113,14 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                     // TODO: Die die die
                     assert(false);
                 }
+                //XXX: Oops, always does equals, no others work.
                 if(code_gen_rec(operation->ops[0]).direct == code_gen_rec(operation->ops[1]).direct) {
                     printf("\tmovl $1, %s\n", ret_symbol_text[0]);
                 }
                 else {
                     printf("\tmovl $0, %s\n", ret_symbol_text[0]);
                 }
-                return dindex;
+                return dindex; //I want to return here fo sho, not so for the later cases
             }
             else if(operation->ops[0]->type != NODE_TYPE_INT && operation->ops[1]->type != NODE_TYPE_INT) { // both indirect
                 symbol_table_index_t lindex = code_gen_rec(operation->ops[0]).indirect;
@@ -134,7 +135,23 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 symbol_del(lindex);
             }
             else { // one direct one indirect
-                assert(false);
+                int numba;
+                symbol_table_index_t sindex;
+                if(operation->ops[0]->type == NODE_TYPE_INT) {
+                    numba = code_gen_rec(operation->ops[0]).direct;
+                    sindex = code_gen_rec(operation->ops[1]).indirect;
+                }
+                else {
+                    numba = code_gen_rec(operation->ops[1]).direct;
+                    sindex = code_gen_rec(operation->ops[0]).indirect;
+                }
+                const char * symbol_text[1];
+                if( ! symbol_give_me_my_stuff(1, symbol_text, sindex) ) {
+                    // TODO: Die if you must
+                    assert(false);
+                }
+                printf("\tcmpl $%d, %s\n", numba, symbol_text[0]);
+                symbol_del(sindex);
             }
             // Get here because it's in a second instruction
             symbol_table_index_t dindex = symbol_add();
@@ -143,6 +160,7 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 // TODO: Die die die
                 assert(false);
             }
+            // XXX: Hmm, greater and less than may use the wrong assembly operation?
             printf("\t%s cmp_ll%d\n", code_gen_op_to_mnem(operation->operr), jump_target_num);
             printf("\tmovl $0, %s\n", ret_symbol_text[0]);
             printf("\tjmp cmp_ll%d\n", jump_target_num+1);

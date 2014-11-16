@@ -50,7 +50,7 @@ static questionable_properties_t questionable_return_props(parse_node_tag_t node
             return (questionable_properties_t) { .indirect = true, .cleanup = false };
         }
         case NODE_TYPE_OPERATION: {
-            return (questionable_properties_t) { .indirect = true, .cleanup = false };
+            return (questionable_properties_t) { .indirect = true, .cleanup = true };
         }
         default: {
             assert(false);
@@ -66,9 +66,9 @@ static questionable_return_t code_gen_rec(const parse_node_t *expression) {
         case NODE_TYPE_INT:
             return (questionable_return_t){ .direct = expression->contents.integer.value };
         case NODE_TYPE_VAR:
-            return (questionable_return_t) { .direct = code_variable(&(expression->contents.variable)) };
+            return (questionable_return_t) { .indirect = code_variable(&(expression->contents.variable)) };
         case NODE_TYPE_OPERATION:
-            return (questionable_return_t) { .direct = code_operate(&(expression->contents.operation)) };
+            return (questionable_return_t) { .indirect = code_operate(&(expression->contents.operation)) };
         default:
             assert(false);
             return (questionable_return_t) { .direct = -1};

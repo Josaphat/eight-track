@@ -180,7 +180,7 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                     // TODO: Die if you must
                     assert(false);
                 }
-                printf("\t%s %s %s\n", code_gen_op_to_mnem(operation->operr), symbol_text[0], symbol_text[1]);
+                printf("\t%s %s, %s\n", code_gen_op_to_mnem(operation->operr), symbol_text[0], symbol_text[1]);
                 if(questionable_return_props(operation->ops[1]->type).cleanup) {
                     symbol_del(sindex);
                 }

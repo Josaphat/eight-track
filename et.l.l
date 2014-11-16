@@ -24,14 +24,6 @@
                 return NEQUAL;
             }
 
-"[:"        {
-                return LINT_START;
-            }
-
-":]"        {
-                return LINT_END;
-            }
-
 [+\-()<>]   {
                 return *yytext;
             }

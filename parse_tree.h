@@ -14,9 +14,8 @@ typedef enum {
     OP_SUB2,
     OP_EQUL,
     OP_NEQL,
-    OP_LESS,
     OP_GREA,
-    OP_LINT,
+    OP_LESS,
 } parse_node_operator_t;
 
 typedef struct parse_node parse_node_t;

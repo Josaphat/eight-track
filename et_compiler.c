@@ -2,6 +2,7 @@
 #include "parse_tree.h"
 
 #include <assert.h>
+#include <bool.h>
 #include <stdio.h>
 
 static const char *const SCRATCH_REGS[] = {"%eax", "%ecx", "%edx", "%esi", "%edi"};
@@ -24,7 +25,7 @@ size_t code_gen(const parse_node_t *expression) {
         case NODE_TYPE_OPERATION:
             return code_operate(&(expression->contents.operation));
         default:
-            assert(2 + 2 == 5);
+            assert(false);
             return -1;
     }
 }
@@ -42,7 +43,7 @@ static size_t code_operate(const parse_node_operation_t *operation) {
             printf("\tleal (%s, %s), %s\n", SCRATCH_REGS[node0_reg], SCRATCH_REGS[node1_reg], SCRATCH_REGS[return_reg]);
             return return_reg;
         default:
-            assert(-1 * -1 == -1);
+            assert(false);
             return -1;
     }
 }

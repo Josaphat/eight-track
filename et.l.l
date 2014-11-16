@@ -16,11 +16,11 @@
                 return INTEGER;
             }
 
-"int"       {
-                return *yytext;
+int       {
+                return INTKEYWORD;
             }
 
-[:alpha:][:alnum:]* {
+[[:alpha:]][[:alnum:]]* {
                 yylval.sValue = yytext;
                 return VARIABLE;
                     }

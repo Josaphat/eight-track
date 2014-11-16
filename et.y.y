@@ -21,6 +21,7 @@
 
 %token <iValue> INTEGER
 %token <sValue> VARIABLE
+%token INTKEYWORD
 %token BADLEX
 
 %type <oValue> expr
@@ -42,7 +43,7 @@ line:
 
 expr:
     INTEGER         { $$ = parse_node_int($1); }
-    | "int" VARIABLE '=' expr { $$ = parse_node_var(true, true, $2, $4); }
+    | INTKEYWORD VARIABLE '=' expr { $$ = parse_node_var(true, true, $2, $4); }
     | VARIABLE '=' expr { $$ = parse_node_var(false, true, $1, $3); }
     | VARIABLE      { $$ = parse_node_var(false, false, $1, NULL); }
     | expr '+' expr { $$ = parse_node_operation(OP_ADD2, 2, $1, $3); }

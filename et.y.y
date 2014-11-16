@@ -24,7 +24,7 @@
 
 %type <oValue> expr logic
 
-%left '+' '-' EQUAL NEQUAL
+%left '+' '-' EQUAL NEQUAL '<' '>'
 
 %%
 

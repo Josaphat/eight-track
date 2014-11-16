@@ -59,6 +59,18 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 return sindex;
             }
             else if (operation->ops[0]->type == NODE_TYPE_INT) {
+                symbol_table_index_t sindex = symbol_add();
+                symbol_table_index_t dindex = code_gen_rec(operation->ops[1]).indirect;
+                const char * symbol_text[2];
+                if( ! symbol_give_me_my_stuff(2, symbol_text, sindex, dindex) ) {
+                    // TODO: Don't die.
+                    assert(false);
+                }
+                printf("\tmovl $%d, %s\n", code_gen_rec(operation->ops[0]).direct, symbol_text[0]);
+                printf("\t%s %s, %s\n", code_gen_op_to_mnem(operation->operr), symbol_text[1], symbol_text[0]);
+                symbol_del(dindex);
+
+                return sindex;
                 // TODO: ME
             }
             else if (operation->ops[1]->type == NODE_TYPE_INT) {

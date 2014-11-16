@@ -106,6 +106,7 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
         case OP_LESS:
         case OP_GREA:
             assert(operation->num_ops == 2);
+            bool swapped = false;
             if(operation->ops[0]->type == NODE_TYPE_INT && operation->ops[1]->type == NODE_TYPE_INT) { // both direct
                 symbol_table_index_t dindex = symbol_add();
                 const char * ret_symbol_text[1];
@@ -114,11 +115,42 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                     assert(false);
                 }
                 //XXX: Oops, always does equals, no others work.
-                if(code_gen_rec(operation->ops[0]).direct == code_gen_rec(operation->ops[1]).direct) {
-                    printf("\tmovl $1, %s\n", ret_symbol_text[0]);
-                }
-                else {
-                    printf("\tmovl $0, %s\n", ret_symbol_text[0]);
+                switch(operation->operr) {
+                    case OP_EQUL:
+                        if(code_gen_rec(operation->ops[0]).direct == code_gen_rec(operation->ops[1]).direct) {
+                            printf("\tmovl $1, %s\n", ret_symbol_text[0]);
+                        }
+                        else {
+                            printf("\tmovl $0, %s\n", ret_symbol_text[0]);
+                        }
+                        break;
+                    case OP_NEQL:
+                        if(code_gen_rec(operation->ops[0]).direct != code_gen_rec(operation->ops[1]).direct) {
+                            printf("\tmovl $1, %s\n", ret_symbol_text[0]);
+                        }
+                        else {
+                            printf("\tmovl $0, %s\n", ret_symbol_text[0]);
+                        }
+                        break;
+                    case OP_GREA:
+                        if(code_gen_rec(operation->ops[0]).direct > code_gen_rec(operation->ops[1]).direct) {
+                            printf("\tmovl $1, %s\n", ret_symbol_text[0]);
+                        }
+                        else {
+                            printf("\tmovl $0, %s\n", ret_symbol_text[0]);
+                        }
+                        break;
+                    case OP_LESS:
+                        if(code_gen_rec(operation->ops[0]).direct < code_gen_rec(operation->ops[1]).direct) {
+                            printf("\tmovl $1, %s\n", ret_symbol_text[0]);
+                        }
+                        else {
+                            printf("\tmovl $0, %s\n", ret_symbol_text[0]);
+                        }
+                        break;
+                    default:
+                        assert(false); // Never ever
+                        break;
                 }
                 return dindex; //I want to return here fo sho, not so for the later cases
             }
@@ -130,7 +162,7 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                     // TODO: Die if you must
                     assert(false);
                 }
-                printf("\tcmpl %s, %s\n", symbol_text[0], symbol_text[1]);
+                printf("\tcmpl %s, %s\n", symbol_text[1], symbol_text[0]);
                 symbol_del(rindex);
                 symbol_del(lindex);
             }
@@ -140,10 +172,12 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 if(operation->ops[0]->type == NODE_TYPE_INT) {
                     numba = code_gen_rec(operation->ops[0]).direct;
                     sindex = code_gen_rec(operation->ops[1]).indirect;
+                    swapped = true;
                 }
                 else {
                     numba = code_gen_rec(operation->ops[1]).direct;
                     sindex = code_gen_rec(operation->ops[0]).indirect;
+                    swapped = false;
                 }
                 const char * symbol_text[1];
                 if( ! symbol_give_me_my_stuff(1, symbol_text, sindex) ) {
@@ -161,7 +195,13 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 assert(false);
             }
             // XXX: Hmm, greater and less than may use the wrong assembly operation?
-            printf("\t%s cmp_ll%d\n", code_gen_op_to_mnem(operation->operr), jump_target_num);
+            const char *op_mnem;
+            if(!swapped || operation->operr == OP_EQUL || operation->operr == OP_NEQL) {
+                op_mnem = code_gen_op_to_mnem(operation->operr);
+            } else { // If swapped and less than or greater then
+                op_mnem = code_gen_op_to_mnem((operation->operr == OP_LESS) ? OP_GREA : OP_LESS);
+            }
+            printf("\t%s cmp_ll%d\n", op_mnem, jump_target_num);
             printf("\tmovl $0, %s\n", ret_symbol_text[0]);
             printf("\tjmp cmp_ll%d\n", jump_target_num+1);
             printf("cmp_ll%d:\n", jump_target_num);

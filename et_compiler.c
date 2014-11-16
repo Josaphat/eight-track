@@ -59,8 +59,8 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 return sindex;
             }
             else if (operation->ops[0]->type == NODE_TYPE_INT) {
-                symbol_table_index_t sindex = symbol_add();
                 symbol_table_index_t dindex = code_gen_rec(operation->ops[1]).indirect;
+                symbol_table_index_t sindex = symbol_add();
                 const char * symbol_text[2];
                 if( ! symbol_give_me_my_stuff(2, symbol_text, sindex, dindex) ) {
                     // TODO: Don't die.
@@ -71,13 +71,30 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 symbol_del(dindex);
 
                 return sindex;
-                // TODO: ME
             }
             else if (operation->ops[1]->type == NODE_TYPE_INT) {
-                // TODO: ME
+                symbol_table_index_t dindex = code_gen_rec(operation->ops[0]).indirect;
+                const char * symbol_text[1];
+                if( ! symbol_give_me_my_stuff(1, symbol_text, dindex) ) {
+                    // TODO: Live, damn you!
+                    assert(false);
+                }
+                printf("\t%s $%d, %s\n", code_gen_op_to_mnem(operation->operr), code_gen_rec(operation->ops[1]).direct, symbol_text[0]);
+
+                return dindex;
             }
             else {
-                // TODO: ME. Or else.
+                symbol_table_index_t dindex = code_gen_rec(operation->ops[0]).indirect;
+                symbol_table_index_t sindex = code_gen_rec(operation->ops[1]).indirect;
+                const char * symbol_text[2];
+                if( ! symbol_give_me_my_stuff(2, symbol_text, sindex, dindex) ) {
+                    // TODO: Die if you must
+                    assert(false);
+                }
+                printf("\t%s %s %s\n", code_gen_op_to_mnem(operation->operr), symbol_text[0], symbol_text[1]);
+                symbol_del(sindex);
+
+                return dindex;
             }
 
             // TODO: remove after cases above are complete (they should all return).

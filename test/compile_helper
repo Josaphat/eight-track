@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ $# -ne 1 ]
+then
+    echo "USAGE: $0 <partial assembly>"
+    echo "Given our compiler output, produces an object file named shitty.o"
+    exit 1
+fi
+
+srcfile="$1"
+tmpfile="/tmp/shitty.s"
+
+cat >"$tmpfile" <<EOHEADER
+	.globl main
+main:
+EOHEADER
+
+cat "$srcfile" >>"$tmpfile"
+
+cat >>"$tmpfile" <<EOFOOTER
+	call putint
+	ret
+EOFOOTER
+
+gcc -c "$tmpfile"
+rm "$tmpfile"
+
+true

@@ -41,6 +41,8 @@ line:
 expr:
     INTEGER         { $$ = parse_node_int($1); }
     | expr '+' expr { $$ = parse_node_operation(OP_ADD2, 2, $1, $3); }
+    | expr '-' expr { $$ = parse_node_operation(OP_SUB2, 2, $1, $3); }
+    | '(' expr ')'  { $$ = $2; }
     ;
 
 %%

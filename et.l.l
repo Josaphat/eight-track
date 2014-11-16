@@ -16,13 +16,15 @@
                 return INTEGER;
             }
 
-[+]      {
+[+\-()]     {
                 return *yytext;
             }
 
 [\n]        {
                 return *yytext;
             }
+
+[ \t]       // Ignored
 
 .           {
                 yyerror("Unrecognized symbol");

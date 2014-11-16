@@ -19,11 +19,12 @@
 }
 
 %token <iValue> INTEGER
+%token EQUAL NEQUAL
 %token BADLEX
 
-%type <oValue> expr
+%type <oValue> expr logic
 
-%left '+' '-'
+%left '+' '-' EQUAL NEQUAL '<' '>'
 
 %%
 
@@ -38,8 +39,21 @@ line:
     | expr '\n'     { code_gen($1); }
     ;
 
+logic:
+    expr EQUAL expr     {
+                      $$ = parse_node_operation(OP_EQUL,  2, $1, $3);
+                        }
+    | expr NEQUAL expr  {
+                      $$ = parse_node_operation(OP_NEQL, 2, $1, $3);
+                        }
+    | expr '<' expr  { $$ = parse_node_operation(OP_LESS, 2, $1, $3); }
+    | expr '>' expr  { $$ = parse_node_operation(OP_GREA, 2, $1, $3); }
+    ;
+
+
 expr:
     INTEGER         { $$ = parse_node_int($1); }
+    | logic         { $$ = $1; }
     | expr '+' expr { $$ = parse_node_operation(OP_ADD2, 2, $1, $3); }
     | expr '-' expr { $$ = parse_node_operation(OP_SUB2, 2, $1, $3); }
     | '(' expr ')'  { $$ = $2; }

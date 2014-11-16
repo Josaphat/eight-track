@@ -16,7 +16,15 @@
                 return INTEGER;
             }
 
-[+\-()]     {
+"[]"        {
+                return EQUAL;
+            }
+
+"]["        {
+                return NEQUAL;
+            }
+
+[+\-()<>]   {
                 return *yytext;
             }
 

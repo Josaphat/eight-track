@@ -24,7 +24,7 @@
                 return NEQUAL;
             }
 
-[+\-()<>]   {
+[+\-()<>{}?] {
                 return *yytext;
             }
 

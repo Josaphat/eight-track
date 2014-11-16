@@ -20,10 +20,9 @@
 
 %token <iValue> INTEGER
 %token EQUAL NEQUAL
-%token STARTIF ENDIF
 %token BADLEX
 
-%type <oValue> expr logic
+%type <oValue> expr logic ifblock
 
 %left '+' '-' EQUAL NEQUAL '<' '>'
 
@@ -38,7 +37,14 @@ line:
     '\n'
     | BADLEX '\n'   { YYABORT; }
     | expr '\n'     { code_gen($1); }
+    | ifblock '\n'  { code_gen($1); }
     ;
+
+ifblock:
+    '?' logic '{' expr '}'
+                    {
+                      $$ = parse_node_ifblock($2, $4);
+                    }
 
 logic:
     expr EQUAL expr     {

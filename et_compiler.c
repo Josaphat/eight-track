@@ -124,10 +124,10 @@ static symbol_table_index_t code_operate(const parse_node_operation_t *operation
                 assert(false);
             }
             printf("\t%s cmp_ll%d\n", code_gen_op_to_mnem(operation->operr), jump_target_num);
-            printf("\tmovl $0 %s\n", ret_symbol_text[0]);
+            printf("\tmovl $0, %s\n", ret_symbol_text[0]);
             printf("\tjmp cmp_ll%d\n", jump_target_num+1);
             printf("cmp_ll%d:\n", jump_target_num);
-            printf("\tmovl $1 %s\n", ret_symbol_text[0]);
+            printf("\tmovl $1, %s\n", ret_symbol_text[0]);
             printf("cmp_ll%d:\n", jump_target_num+1);
             jump_target_num += 2;
             return dindex;

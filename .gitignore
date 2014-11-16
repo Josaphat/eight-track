@@ -1,4 +1,6 @@
-*.tab.*
+*.o
+*.l.*
 *.output
-*.yy.*
+*.tab.*
+*.y.*
 et

@@ -1,13 +1,14 @@
 #!/bin/sh
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
-    echo "USAGE: $0 <partial assembly>"
+    echo "USAGE: $0 <partial assembly> <executable file>"
     echo "Given our compiler output, produces an object file named shitty.o"
     exit 1
 fi
 
 srcfile="$1"
+outfile="$2"
 tmpfile="/tmp/shitty.s"
 
 cat >"$tmpfile" <<EOHEADER
@@ -20,10 +21,11 @@ cat "$srcfile" >>"$tmpfile"
 cat >>"$tmpfile" <<EOFOOTER
 	movl %eax, %edi
 	call putint
+	movl \$0, %eax
 	ret
 EOFOOTER
 
-gcc -c "$tmpfile"
-rm "$tmpfile"
+gcc -o "$outfile" "$tmpfile" "`dirname $0`/putint.s"
+#rm "$tmpfile"
 
 true

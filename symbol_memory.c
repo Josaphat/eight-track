@@ -30,6 +30,8 @@ static const size_t REGISTER_TABLE_LEN = sizeof register_table / sizeof(*registe
 // XXX: Add memory_something_index_t, but there are caveats:
 //  - globals cannot safely be stacked without significant care
 //  - want to avoid stack fragmentation (e.g. holes from unstacking)
+//  IDEA: use another array similar to register thingy, indexed relative to %rbp, but of adjustable size
+//  IDEA: whenever we alloc in mem, use a tagged union so that all values are the same size + stay relatively alligned
 typedef bool memory_something_index_t;
 
 typedef enum {
